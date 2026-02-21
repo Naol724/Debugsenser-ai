@@ -42,15 +42,38 @@ npm run dev
 The app will be available at `http://localhost:5173`.
 
 ## Deployment (Render.com)
-This app is optimized for a single Web Service deployment on Render:
-1. Connect your GitHub repository to Render.
-2. Create a new **Web Service**.
-3. **Environment**: Node
-4. **Build Command**: `npm install && npm run build`
-5. **Start Command**: `npm start`
-6. Add the following Environment Variables in the Render dashboard:
-   - `GROQ_API_KEY`: Your API key
+
+### Quick Deploy
+This app is optimized for deployment on Render.com. Follow these steps:
+
+1. **Push your code to GitHub** (already done!)
+
+2. **Create a new Web Service on Render**:
+   - Go to [Render Dashboard](https://dashboard.render.com/)
+   - Click "New +" → "Web Service"
+   - Connect your GitHub repository
+
+3. **Configure the service**:
+   - **Build Command**: `npm install && npm run build`
+   - **Start Command**: `npm start`
+   - **Environment**: Node
+
+4. **Add Environment Variables**:
    - `NODE_ENV`: `production`
+   - `GROQ_API_KEY`: Your Groq API key
+
+5. Click "Create Web Service" and wait for deployment!
+
+For detailed instructions, see [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)
+
+### Alternative: Deploy with render.yaml
+This repository includes a `render.yaml` file for one-click deployment:
+1. Fork this repository
+2. Go to [Render Dashboard](https://dashboard.render.com/)
+3. Click "New +" → "Blueprint"
+4. Connect your forked repository
+5. Add your `GROQ_API_KEY` environment variable
+6. Deploy!
 
 ## License
 MIT
