@@ -1,0 +1,32 @@
+{
+    "name": "debugsense-ai",
+    "version": "1.0.0",
+    "description": "Smart Error Explainer for Developers",
+    "type": "module",
+    "scripts": {
+        "dev": "concurrently \"npm run server\" \"npm run client\"",
+        "client": "vite --config src/client/vite.config.js",
+        "server": "nodemon src/server/server.js",
+        "build": "vite build --config src/client/vite.config.js -d dist",
+        "start": "node src/server/server.js"
+    },
+    "dependencies": {
+        "@tailwindcss/typography": "^0.5.19",
+        "axios": "^1.6.2",
+        "cors": "^2.8.5",
+        "dotenv": "^16.3.1",
+        "express": "^4.18.2",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "react-markdown": "^10.1.0"
+    },
+    "devDependencies": {
+        "@vitejs/plugin-react": "^4.2.0",
+        "autoprefixer": "^10.4.16",
+        "concurrently": "^8.2.2",
+        "nodemon": "^3.0.1",
+        "postcss": "^8.4.31",
+        "tailwindcss": "^3.3.5",
+        "vite": "^5.0.0"
+    }
+}
