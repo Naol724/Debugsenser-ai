@@ -2,10 +2,13 @@ services:
   - type: web
     name: debugsense-ai
     env: node
-    buildCommand: npm install && npm run build
+    buildCommand: npm ci --only=production && npm run build
     startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
       - key: GROQ_API_KEY
         sync: false
+    healthCheckPath: /api/health
+    autoDeploy: false
+    plan: free

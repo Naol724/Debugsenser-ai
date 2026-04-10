@@ -3,7 +3,6 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import axios from 'axios';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,6 +13,9 @@ dotenv.config({ path: path.join(__dirname, '../../.env') });
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Enable trust proxy for proper IP handling in production
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(cors({
     origin: process.env.NODE_ENV === 'production' 
@@ -21,16 +23,30 @@ app.use(cors({
         : ['http://localhost:5173', 'http://localhost:5000'],
     credentials: true
 }));
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-    res.json({ 
+    const health = {
         status: 'ok', 
         message: 'Server is running',
-        hasApiKey: !!process.env.GROQ_API_KEY 
-    });
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'development',
+        hasApiKey: !!process.env.GROQ_API_KEY,
+        cacheSize: responseCache.size,
+        uptime: process.uptime(),
+        memory: {
+            used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024 * 100) / 100,
+            total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024 * 100) / 100
+        }
+    };
+    
+    res.json(health);
 });
+
+// Simple in-memory cache for API responses (optional optimization)
+const responseCache = new Map();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 // API Routes
 app.post('/api/explain', async (req, res) => {
@@ -42,14 +58,27 @@ app.post('/api/explain', async (req, res) => {
         }
 
         if (!process.env.GROQ_API_KEY) {
-            console.error('❌ GROQ_API_KEY is missing!');
+            console.error('GROQ_API_KEY is missing!');
             return res.status(500).json({ 
                 error: 'Server configuration error',
                 details: 'GROQ_API_KEY is not configured. Please check .env file.' 
             });
         }
 
-        console.log(`📝 Processing request for ${language} error...`);
+        // Create cache key
+        const cacheKey = `${language}:${errorText.substring(0, 100)}`;
+        
+        // Check cache first
+        const cached = responseCache.get(cacheKey);
+        if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+            console.log('Serving from cache');
+            return res.json({ explanation: cached.explanation });
+        }
+
+        console.log(`Processing request for ${language} error...`);
+
+        // Lazy load axios only when needed
+        const axios = (await import('axios')).default;
 
         const prompt = `Act as an expert, beginner-friendly programming mentor. 
 Analyze the following error message for the programming language: ${language}.
@@ -82,16 +111,33 @@ Please provide a structured explanation using Markdown. Your response must inclu
                     Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
                     'Content-Type': 'application/json',
                 },
-                timeout: 30000
+                timeout: 25000 // Reduced timeout for faster failure
             }
         );
 
         const explanation = response.data.choices[0].message.content;
-        console.log('✅ Successfully generated explanation');
+        
+        // Cache the response
+        responseCache.set(cacheKey, {
+            explanation,
+            timestamp: Date.now()
+        });
+        
+        // Clean old cache entries periodically
+        if (responseCache.size > 100) {
+            const now = Date.now();
+            for (const [key, value] of responseCache.entries()) {
+                if (now - value.timestamp > CACHE_DURATION) {
+                    responseCache.delete(key);
+                }
+            }
+        }
+        
+        console.log('Successfully generated explanation');
         res.json({ explanation });
 
     } catch (error) {
-        console.error('❌ Error reaching Groq API:', error.response?.data || error.message);
+        console.error('Error reaching Groq API:', error.response?.data || error.message);
         
         // Check if it's an API key issue
         if (error.response?.status === 401 || error.response?.status === 403) {

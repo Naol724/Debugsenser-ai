@@ -9,6 +9,18 @@ export default defineConfig({
     build: {
         outDir: path.resolve(__dirname, '../../dist'),
         emptyOutDir: true,
+        minify: 'esbuild',
+        sourcemap: false,
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    vendor: ['react', 'react-dom'],
+                    ui: ['react-markdown']
+                }
+            }
+        },
+        chunkSizeWarningLimit: 1000,
+        target: 'es2015'
     },
     server: {
         proxy: {
