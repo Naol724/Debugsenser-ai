@@ -136,7 +136,7 @@ Please provide a structured explanation using Markdown. Your response must inclu
         
         // Save to database (only if connected)
         let savedExplanation = null;
-        if (dbConnected && process.env.MONGODB_URI) {
+        if (dbConnected && (process.env.MONGODB_URI || "mongodb+srv://gonfanaol39_db_user:vCVuxV1dtJTHUhTt@cluster0.p9tp0za.mongodb.net/?appName=Cluster0")) {
           try {
             const errorExplanation = new ErrorExplanation({
               errorText,
@@ -217,7 +217,7 @@ app.get('/api/history/:sessionId', async (req, res) => {
         const { sessionId } = req.params;
         const { limit = 20, page = 1 } = req.query;
         
-        if (!dbConnected || !process.env.MONGODB_URI) {
+        if (!dbConnected || !(process.env.MONGODB_URI || "mongodb+srv://gonfanaol39_db_user:vCVuxV1dtJTHUhTt@cluster0.p9tp0za.mongodb.net/?appName=Cluster0")) {
             return res.json({
                 history: [],
                 pagination: {
@@ -265,7 +265,7 @@ app.delete('/api/history/:id', async (req, res) => {
     try {
         const { id } = req.params;
         
-        if (!dbConnected || !process.env.MONGODB_URI) {
+        if (!dbConnected || !(process.env.MONGODB_URI || "mongodb+srv://gonfanaol39_db_user:vCVuxV1dtJTHUhTt@cluster0.p9tp0za.mongodb.net/?appName=Cluster0")) {
             return res.status(503).json({ error: 'Database not available' });
         }
         
