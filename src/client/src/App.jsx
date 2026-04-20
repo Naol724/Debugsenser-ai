@@ -1,4 +1,20 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Code2, 
+  Sparkles, 
+  Zap, 
+  History, 
+  Copy, 
+  Download, 
+  Trash2,
+  ChevronDown,
+  Play,
+  Rocket,
+  CheckCircle2,
+  AlertCircle,
+  X
+} from 'lucide-react';
 import ErrorInput from './components/ErrorInput';
 import ResultDisplay from './components/ResultDisplay';
 import HistoryList from './components/HistoryList';
@@ -12,6 +28,16 @@ function App() {
   const [history, setHistory] = useState([]);
   const [sessionId, setSessionId] = useState('');
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const [showExamples, setShowExamples] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const exampleErrors = [
+    { language: 'JavaScript', error: 'TypeError: Cannot read properties of undefined (reading \'length\')' },
+    { language: 'Python', error: 'NameError: name \'x\' is not defined' },
+    { language: 'Java', error: 'NullPointerException: Cannot invoke method on null object' },
+    { language: 'C++', error: 'Segmentation fault (core dumped)' },
+    { language: 'React', error: 'Warning: Each child in a list should have a unique "key" prop' }
+  ];
 
   useEffect(() => {
     // Get or create session ID
@@ -114,117 +140,318 @@ function App() {
     }
   };
 
+  const handleCopyResult = async () => {
+    try {
+      await navigator.clipboard.writeText(result);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
+
+  const handleExportResult = () => {
+    const blob = new Blob([result], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `debugsense-explanation-${Date.now()}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleClearAll = () => {
+    setErrorText('');
+    setResult('');
+    setReqError('');
+  };
+
+  const loadExample = (example) => {
+    setErrorText(example.error);
+    setLanguage(example.language);
+    setReqError('');
+    setShowExamples(false);
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
-      {/* Navbar */}
-      <nav className="fixed top-0 w-full bg-white/95 backdrop-blur-sm shadow-sm z-10 border-b border-slate-200">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-blue-500/30">
-              D
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden pt-32 pb-16 px-4 sm:px-6 lg:px-8">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-purple-600/5 backdrop-blur-3xl" />
+        <div className="relative max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-12"
+          >
+            <div className="inline-flex items-center gap-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-4 py-2 rounded-full text-sm font-medium mb-6">
+              <Sparkles className="w-4 h-4" />
+              AI-Powered Error Analysis
             </div>
-            <div>
-              <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-400">
-                DebugSense AI
-              </h1>
-              <p className="text-xs text-slate-500 hidden sm:block">Smart Error Explainer for Developers</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="hidden sm:flex items-center gap-2 text-sm text-slate-500">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span>Live</span>
-            </div>
-            <button className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 transition-colors">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </nav>
 
-      {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-4 pt-28 pb-12">
-        {/* Welcome Section */}
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-slate-900 mb-4">
-            Understand Errors <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">Instantly</span>
-          </h2>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            Get beginner-friendly explanations for any programming error. Powered by AI, built for developers.
-          </p>
-          <div className="flex items-center justify-center gap-6 mt-6 text-sm text-slate-500">
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-              </svg>
-              <span>Instant Analysis</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-              </svg>
-              <span>Step-by-Step Solutions</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-              </svg>
-              <span>Code Examples</span>
-            </div>
-          </div>
-        </div>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6">
+              Debug Errors with <span className="text-gradient-primary">AI Precision</span>
+            </h1>
+            
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-8 leading-relaxed">
+              Paste your error messages and get instant, accurate explanations. 
+              Powered by advanced AI to help you code faster and learn more.
+            </p>
 
-        <div className="flex flex-col lg:flex-row gap-8 items-start">
-          {/* Left Column - Main Interaction */}
-          <div className="w-full lg:w-2/3">
-            <ErrorInput
-              errorText={errorText}
-              setErrorText={setErrorText}
-              language={language}
-              setLanguage={setLanguage}
-              handleExplain={handleExplain}
-              loading={loading}
-              reqError={reqError}
-            />
-
-            {result && <ResultDisplay markdownContent={result} />}
-          </div>
-
-          {/* Right Column - Sidebar History */}
-          <div className="w-full lg:w-1/3 sticky top-28">
-            <HistoryList 
-              history={history} 
-              onLoadHistory={loadHistoryItem} 
-              onDeleteHistory={deleteHistoryItem}
-              loadingHistory={loadingHistory}
-            />
-          </div>
-        </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 mt-20">
-        <div className="max-w-6xl mx-auto px-4 py-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
-                D
+            <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-green-500" />
+                <span>Instant Analysis</span>
               </div>
-              <span className="text-sm font-medium text-slate-600">DebugSense AI</span>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-green-500" />
+                <span>13+ Languages</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-green-500" />
+                <span>Privacy First</span>
+              </div>
             </div>
-            <div className="flex items-center gap-6 text-sm text-slate-500">
-              <span>Powered by AI</span>
-              <span>•</span>
-              <span>Made for Developers</span>
-              <span>•</span>
-              <span className="text-blue-600 hover:text-blue-700 cursor-pointer">GitHub</span>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Main App */}
+      <section className="px-4 sm:px-6 lg:px-8 pb-20">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Main Content */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Input Section */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6 }}
+                className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-700"
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white">
+                      <Code2 className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                        Error Analysis
+                      </h2>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Paste your error message below
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setShowExamples(!showExamples)}
+                      className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors flex items-center gap-2"
+                    >
+                      <Play className="w-4 h-4" />
+                      Examples
+                      <ChevronDown className={`w-4 h-4 transition-transform ${showExamples ? 'rotate-180' : ''}`} />
+                    </button>
+                  </div>
+                </div>
+
+                <AnimatePresence>
+                  {showExamples && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="mb-6"
+                    >
+                      <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4">
+                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                          Try these example errors:
+                        </p>
+                        <div className="space-y-2">
+                          {exampleErrors.map((example, index) => (
+                            <button
+                              key={index}
+                              onClick={() => loadExample(example)}
+                              className="w-full text-left p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-500 transition-colors group"
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded">
+                                    {example.language}
+                                  </span>
+                                  <span className="text-sm text-gray-600 dark:text-gray-400 font-mono truncate group-hover:text-gray-900 dark:hover:text-gray-200">
+                                    {example.error}
+                                  </span>
+                                </div>
+                                <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Error Message
+                    </label>
+                    <textarea
+                      className="w-full h-40 p-4 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none font-mono text-sm text-gray-900 dark:text-white placeholder-gray-400"
+                      placeholder="Paste your error message here...&#10;&#10;Example:&#10;Uncaught TypeError: Cannot read properties of undefined (reading 'length')&#10;  at main.js:45:12"
+                      value={errorText}
+                      onChange={(e) => setErrorText(e.target.value)}
+                    />
+                    <div className="mt-2 flex items-center justify-between">
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        {errorText.length} characters
+                      </span>
+                      {errorText && (
+                        <button
+                          onClick={handleClearAll}
+                          className="text-xs text-red-500 hover:text-red-600 transition-colors flex items-center gap-1"
+                        >
+                          <X className="w-3 h-3" />
+                          Clear
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex-1">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Programming Language
+                      </label>
+                      <select
+                        className="w-full bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all cursor-pointer"
+                        value={language}
+                        onChange={(e) => setLanguage(e.target.value)}
+                      >
+                        <option value="JavaScript">JavaScript</option>
+                        <option value="TypeScript">TypeScript</option>
+                        <option value="Python">Python</option>
+                        <option value="Java">Java</option>
+                        <option value="C++">C++</option>
+                        <option value="C#">C#</option>
+                        <option value="PHP">PHP</option>
+                        <option value="Ruby">Ruby</option>
+                        <option value="Go">Go</option>
+                        <option value="Rust">Rust</option>
+                        <option value="Swift">Swift</option>
+                        <option value="Kotlin">Kotlin</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+
+                    <div className="flex items-end">
+                      <button
+                        onClick={handleExplain}
+                        disabled={loading || !errorText.trim()}
+                        className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
+                      >
+                        {loading ? (
+                          <>
+                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            <span>Analyzing...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Zap className="w-5 h-5" />
+                            <span>Analyze Error</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  {reqError && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl flex items-start gap-3"
+                    >
+                      <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                      <span className="text-red-700 dark:text-red-300 font-medium">{reqError}</span>
+                    </motion.div>
+                  )}
+                </div>
+              </motion.div>
+
+              {/* Result Section */}
+              {result && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6 }}
+                  className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-700"
+                >
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center text-white">
+                        <CheckCircle2 className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                          Analysis Complete
+                        </h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Here's what went wrong and how to fix it
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={handleCopyResult}
+                        className="p-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                        title="Copy explanation"
+                      >
+                        {copied ? (
+                          <CheckCircle2 className="w-5 h-5 text-green-500" />
+                        ) : (
+                          <Copy className="w-5 h-5" />
+                        )}
+                      </button>
+                      <button
+                        onClick={handleExportResult}
+                        className="p-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                        title="Export explanation"
+                      >
+                        <Download className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <ResultDisplay markdownContent={result} />
+                </motion.div>
+              )}
+            </div>
+
+            {/* Sidebar */}
+            <div className="lg:col-span-1">
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6 }}
+                className="sticky top-24"
+              >
+                <HistoryList 
+                  history={history} 
+                  onLoadHistory={loadHistoryItem} 
+                  onDeleteHistory={deleteHistoryItem}
+                  loadingHistory={loadingHistory}
+                />
+              </motion.div>
             </div>
           </div>
         </div>
-      </footer>
+      </section>
     </div>
   );
 }
