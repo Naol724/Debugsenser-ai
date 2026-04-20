@@ -1,77 +1,76 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Clock, Trash2, Terminal } from 'lucide-react';
+
+const LANG_COLORS = {
+  JavaScript: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20',
+  TypeScript: 'text-blue-400 bg-blue-400/10 border-blue-400/20',
+  Python: 'text-green-400 bg-green-400/10 border-green-400/20',
+  Java: 'text-orange-400 bg-orange-400/10 border-orange-400/20',
+  'C++': 'text-pink-400 bg-pink-400/10 border-pink-400/20',
+  default: 'text-indigo-400 bg-indigo-400/10 border-indigo-400/20',
+};
 
 function HistoryList({ history, onLoadHistory, onDeleteHistory, loadingHistory }) {
-    if (loadingHistory) {
-        return (
-            <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-6 border border-slate-100 flex flex-col items-center justify-center text-center h-48">
-                <div className="w-10 h-10 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mb-3"></div>
-                <h3 className="text-slate-500 font-medium">Loading history...</h3>
-            </div>
-        );
-    }
-    
-    if (!history || history.length === 0) {
-        return (
-            <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-6 border border-slate-100 flex flex-col items-center justify-center text-center h-48">
-                <svg className="w-10 h-10 text-slate-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <h3 className="text-slate-500 font-medium">No history yet</h3>
-                <p className="text-sm text-slate-400 mt-1">Your recent explanations will appear here.</p>
-            </div>
-        );
-    }
-
+  if (loadingHistory) {
     return (
-        <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-6 md:p-8 border border-slate-100">
-            <div className="flex items-center gap-2 mb-6 border-b border-slate-100 pb-4">
-                <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <h2 className="text-lg font-bold text-slate-800">Recent Explanations</h2>
-            </div>
-
-            <ul className="space-y-3">
-                {history.map(item => (
-                    <li
-                        key={item._id || item.id}
-                        className="p-4 rounded-xl border border-slate-100 hover:border-blue-300 hover:shadow-md hover:bg-blue-50/50 transition-all group"
-                    >
-                        <div className="flex justify-between items-start mb-2">
-                            <span className="text-xs font-bold text-blue-700 bg-blue-100 px-2 py-1 rounded-md">
-                                {item.language}
-                            </span>
-                            <div className="flex items-center gap-2">
-                                <span className="text-xs font-medium text-slate-400">
-                                    {new Date(item.createdAt || item.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                                </span>
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        onDeleteHistory(item._id || item.id);
-                                    }}
-                                    className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700 p-1"
-                                    title="Delete"
-                                >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                        <div 
-                            onClick={() => onLoadHistory(item)}
-                            className="cursor-pointer"
-                        >
-                            <p className="text-sm text-slate-600 font-mono truncate group-hover:text-slate-900">
-                                {item.errorText}
-                            </p>
-                        </div>
-                    </li>
-                ))}
-            </ul>
-        </div>
+      <div className="card p-6 flex flex-col items-center justify-center h-48">
+        <div className="w-7 h-7 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin mb-3" />
+        <p className="text-sm text-gray-600">Loading history...</p>
+      </div>
     );
+  }
+
+  if (!history || history.length === 0) {
+    return (
+      <div className="card p-6 flex flex-col items-center justify-center h-48 text-center">
+        <Terminal className="w-8 h-8 text-gray-700 mb-3" />
+        <p className="text-sm text-gray-600 font-medium">No history yet</p>
+        <p className="text-xs text-gray-700 mt-1">Your recent analyses will appear here.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="card p-5">
+      <div className="flex items-center gap-2 mb-4 pb-4 border-b border-white/5">
+        <Clock className="w-4 h-4 text-indigo-400" />
+        <h2 className="text-sm font-semibold text-white">Recent Analyses</h2>
+        <span className="ml-auto text-xs bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded-full">
+          {history.length}
+        </span>
+      </div>
+      <ul className="space-y-2">
+        {history.map((item) => {
+          const langClass = LANG_COLORS[item.language] || LANG_COLORS.default;
+          return (
+            <li key={item._id || item.id}
+              className="group flex items-start gap-3 p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 hover:border-indigo-500/20 transition-all cursor-pointer"
+              onClick={() => onLoadHistory(item)}
+            >
+              <span className={`text-xs font-semibold px-2 py-0.5 rounded-md border shrink-0 mt-0.5 ${langClass}`}>
+                {item.language}
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-gray-600 font-mono truncate group-hover:text-gray-300 transition-colors">
+                  {item.errorText}
+                </p>
+                <p className="text-xs text-gray-700 mt-1">
+                  {new Date(item.createdAt || item.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                </p>
+              </div>
+              <button
+                onClick={(e) => { e.stopPropagation(); onDeleteHistory(item._id || item.id); }}
+                className="p-1 rounded text-gray-700 hover:text-red-400 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-all shrink-0"
+                title="Delete"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
 }
 
 export default HistoryList;

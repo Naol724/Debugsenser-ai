@@ -1,491 +1,186 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
-  Sparkles, 
-  Zap, 
-  Code2, 
-  CheckCircle2, 
-  ArrowRight, 
-  Star,
-  Users,
-  BookOpen,
-  MessageSquare,
-  Shield,
-  Rocket,
-  ChevronRight,
-  Play,
-  Copy,
-  Download,
-  Globe
+import {
+  Zap, Code2, BookOpen, Shield, Globe, Rocket,
+  ArrowRight, CheckCircle2, Copy, Sparkles, Terminal,
+  ChevronRight, BarChart3, Clock
 } from 'lucide-react';
 
-const HomePage = () => {
-  const [activeDemo, setActiveDemo] = useState(0);
+const fadeUp = (delay = 0) => ({
+  initial: { opacity: 0, y: 24 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true },
+  transition: { duration: 0.55, delay, ease: 'easeOut' },
+});
 
-  const features = [
-    {
-      icon: <Zap className="w-6 h-6" />,
-      title: "Instant Analysis",
-      description: "Get AI-powered explanations for any programming error in seconds, not hours."
-    },
-    {
-      icon: <Code2 className="w-6 h-6" />,
-      title: "Code Examples",
-      description: "Receive corrected code examples that you can copy and paste directly into your projects."
-    },
-    {
-      icon: <BookOpen className="w-6 h-6" />,
-      title: "Learn & Grow",
-      description: "Understand not just the fix, but why errors happen and how to prevent them."
-    },
-    {
-      icon: <Shield className="w-6 h-6" />,
-      title: "Privacy First",
-      description: "Your code and errors are processed securely. No data stored without your permission."
-    },
-    {
-      icon: <Globe className="w-6 h-6" />,
-      title: "Multi-Language",
-      description: "Support for JavaScript, Python, Java, C++, Go, Rust, and 13+ programming languages."
-    },
-    {
-      icon: <Rocket className="w-6 h-6" />,
-      title: "Lightning Fast",
-      description: "Powered by cutting-edge AI models for rapid, accurate error analysis."
-    }
-  ];
+const features = [
+  { icon: <Zap className="w-5 h-5" />, title: 'Instant Analysis', desc: 'AI-powered explanations for any error in seconds, not hours.' },
+  { icon: <Code2 className="w-5 h-5" />, title: 'Code Examples', desc: 'Get corrected code snippets you can copy directly into your project.' },
+  { icon: <BookOpen className="w-5 h-5" />, title: 'Learn & Grow', desc: 'Understand why errors happen and how to prevent them next time.' },
+  { icon: <Shield className="w-5 h-5" />, title: 'Privacy First', desc: 'Your code is processed securely. No data stored without permission.' },
+  { icon: <Globe className="w-5 h-5" />, title: '13+ Languages', desc: 'JavaScript, Python, Java, C++, Go, Rust, TypeScript and more.' },
+  { icon: <BarChart3 className="w-5 h-5" />, title: 'Error History', desc: 'Track all your past analyses in a beautiful dashboard.' },
+];
 
-  const demoErrors = [
-    {
-      language: "JavaScript",
-      error: "TypeError: Cannot read properties of undefined (reading 'length')",
-      explanation: "This error occurs when you try to access the 'length' property of a variable that is undefined."
-    },
-    {
-      language: "Python",
-      error: "NameError: name 'x' is not defined",
-      explanation: "This error means you're trying to use a variable that hasn't been assigned a value yet."
-    },
-    {
-      language: "Java",
-      error: "NullPointerException: Cannot invoke method on null object",
-      explanation: "This happens when you try to call a method on an object reference that is null."
-    }
-  ];
+const steps = [
+  { n: '01', icon: <Copy className="w-6 h-6" />, title: 'Paste Your Error', desc: 'Copy your error message, stack trace, or compiler output and paste it in.' },
+  { n: '02', icon: <Sparkles className="w-6 h-6" />, title: 'AI Analyzes', desc: 'Our LLaMA-powered AI understands the context and root cause instantly.' },
+  { n: '03', icon: <CheckCircle2 className="w-6 h-6" />, title: 'Get the Fix', desc: 'Receive a clear explanation, step-by-step fix, and corrected code.' },
+];
 
-  const testimonials = [
-    {
-      name: "Sarah Chen",
-      role: "Full Stack Developer",
-      content: "DebugSense AI has cut my debugging time by 80%. I can't imagine coding without it now.",
-      rating: 5
-    },
-    {
-      name: "Marcus Rodriguez",
-      role: "Computer Science Student",
-      content: "As a student, this tool has been invaluable for understanding complex error messages.",
-      rating: 5
-    },
-    {
-      name: "Emily Watson",
-      role: "DevOps Engineer",
-      content: "The AI explanations are so clear and helpful. It's like having a senior developer pair programming.",
-      rating: 5
-    }
-  ];
+const HomePage = () => (
+  <div className="min-h-screen bg-[#0f1117]">
+    {/* Hero */}
+    <section className="relative overflow-hidden bg-grid bg-radial-glow">
+      {/* Ambient blobs */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-20 right-1/4 w-80 h-80 bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
 
-  const faqs = [
-    {
-      question: "How accurate are the AI explanations?",
-      answer: "Our AI is powered by state-of-the-art language models trained on millions of code examples and error patterns, achieving over 95% accuracy for common programming errors."
-    },
-    {
-      question: "Is my code secure?",
-      answer: "Yes, absolutely. We use enterprise-grade encryption and never store your code without explicit permission. Your privacy is our top priority."
-    },
-    {
-      question: "Which programming languages are supported?",
-      answer: "We support 13+ major languages including JavaScript, Python, Java, C++, C#, Go, Rust, TypeScript, PHP, Ruby, Swift, Kotlin, and more."
-    },
-    {
-      question: "Can I use this for commercial projects?",
-      answer: "Yes, DebugSense AI is perfect for both personal and commercial projects. Our Pro plan includes additional features for teams."
-    }
-  ];
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-32 text-center">
+        <motion.div {...fadeUp(0)}>
+          <span className="tag mb-6 inline-flex">
+            <Sparkles className="w-3.5 h-3.5" />
+            Powered by LLaMA 3.3 · 70B
+          </span>
+        </motion.div>
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10 backdrop-blur-3xl" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-32">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center"
-          >
-            <motion.div
-              className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-6"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2 }}
+        <motion.h1 {...fadeUp(0.1)} className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-tight">
+          Debug Errors with{' '}
+          <span className="gradient-text">AI Precision</span>
+        </motion.h1>
+
+        <motion.p {...fadeUp(0.2)} className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+          Paste any error message and get an instant, beginner-friendly explanation —
+          what it means, why it happened, and exactly how to fix it.
+        </motion.p>
+
+        <motion.div {...fadeUp(0.3)} className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Link to="/debug" className="btn-primary flex items-center justify-center gap-2 text-base px-8 py-3.5">
+            <Rocket className="w-5 h-5" />
+            Start Debugging Free
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+          <Link to="/dashboard" className="btn-ghost flex items-center justify-center gap-2 text-base px-8 py-3.5">
+            <BarChart3 className="w-5 h-5" />
+            View Dashboard
+          </Link>
+        </motion.div>
+
+        <motion.div {...fadeUp(0.4)} className="flex flex-wrap items-center justify-center gap-6 mt-10 text-sm text-gray-500">
+          {['Instant Analysis', '13+ Languages', 'Privacy First', 'Free to Use'].map((t) => (
+            <span key={t} className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4 text-indigo-500" />
+              {t}
+            </span>
+          ))}
+        </motion.div>
+
+        {/* Hero terminal mockup */}
+        <motion.div {...fadeUp(0.5)} className="mt-16 max-w-2xl mx-auto">
+          <div className="card glow-border overflow-hidden">
+            <div className="flex items-center gap-2 px-4 py-3 border-b border-white/5 bg-white/[0.02]">
+              <div className="w-3 h-3 rounded-full bg-red-500/70" />
+              <div className="w-3 h-3 rounded-full bg-yellow-500/70" />
+              <div className="w-3 h-3 rounded-full bg-green-500/70" />
+              <span className="ml-2 text-xs text-gray-600 font-mono">error.log</span>
+            </div>
+            <div className="p-5 font-mono text-sm text-left space-y-2">
+              <p className="text-red-400">TypeError: Cannot read properties of undefined</p>
+              <p className="text-gray-600">{'  '}at processData (app.js:42:15)</p>
+              <p className="text-gray-600">{'  '}at main (app.js:78:3)</p>
+              <div className="mt-4 pt-4 border-t border-white/5">
+                <p className="text-indigo-400 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4" />
+                  AI Analysis complete — 3 issues found, fix ready
+                </p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+
+    {/* Why Choose DebugSense */}
+    <section className="section-pad bg-[#0d1020]">
+      <div className="container-max">
+        <motion.div {...fadeUp()} className="text-center mb-14">
+          <span className="tag mb-4 inline-flex">Features</span>
+          <h2 className="text-4xl font-bold text-white mb-4">Why Choose DebugSense?</h2>
+          <p className="text-gray-400 max-w-xl mx-auto">Everything you need to debug smarter, learn faster, and ship with confidence.</p>
+        </motion.div>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {features.map((f, i) => (
+            <motion.div key={i} {...fadeUp(i * 0.07)}
+              className="card p-6 hover:border-indigo-500/30 hover:-translate-y-1 transition-all duration-300 group"
             >
-              <Sparkles className="w-4 h-4" />
-              Powered by Advanced AI Technology
+              <div className="w-10 h-10 bg-indigo-500/10 border border-indigo-500/20 rounded-xl flex items-center justify-center text-indigo-400 mb-4 group-hover:bg-indigo-500/20 transition-colors">
+                {f.icon}
+              </div>
+              <h3 className="text-base font-semibold text-white mb-2">{f.title}</h3>
+              <p className="text-sm text-gray-500 leading-relaxed">{f.desc}</p>
             </motion.div>
-
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 mb-6">
-              Fix Errors Faster with
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"> AI</span>
-            </h1>
-            
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-10 leading-relaxed">
-              Transform frustrating error messages into clear, actionable solutions. 
-              DebugSense AI explains what went wrong, why it happened, and exactly how to fix it.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
-              >
-                <Rocket className="w-5 h-5" />
-                Start Fixing Errors - It's Free
-                <ArrowRight className="w-5 h-5" />
-              </motion.button>
-              
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-8 py-4 bg-white text-gray-700 font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 border border-gray-200"
-              >
-                <Play className="w-5 h-5" />
-                Watch Demo
-              </motion.button>
-            </div>
-          </motion.div>
-
-          {/* Floating Elements */}
-          <motion.div
-            animate={{ y: [-10, 10, -10] }}
-            transition={{ duration: 4, repeat: Infinity }}
-            className="absolute top-20 left-10 w-20 h-20 bg-blue-200 rounded-full blur-3xl opacity-30"
-          />
-          <motion.div
-            animate={{ y: [10, -10, 10] }}
-            transition={{ duration: 4, repeat: Infinity, delay: 2 }}
-            className="absolute top-40 right-10 w-32 h-32 bg-purple-200 rounded-full blur-3xl opacity-30"
-          />
+          ))}
         </div>
-      </section>
+      </div>
+    </section>
 
-      {/* Live Demo Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              See It in Action
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Watch how DebugSense AI transforms confusing error messages into clear solutions
-            </p>
-          </motion.div>
+    {/* How It Works */}
+    <section className="section-pad">
+      <div className="container-max">
+        <motion.div {...fadeUp()} className="text-center mb-14">
+          <span className="tag mb-4 inline-flex">Process</span>
+          <h2 className="text-4xl font-bold text-white mb-4">How It Works</h2>
+          <p className="text-gray-400 max-w-xl mx-auto">Three simple steps from confused to coding again.</p>
+        </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6 }}
-            className="bg-white rounded-2xl shadow-2xl p-8 max-w-4xl mx-auto"
-          >
-            <div className="flex gap-2 mb-6">
-              {demoErrors.map((demo, index) => (
-                <button
-                  key={index}
-                  onClick={() => setActiveDemo(index)}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                    activeDemo === index
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  {demo.language}
-                </button>
-              ))}
-            </div>
+        <div className="grid md:grid-cols-3 gap-6 relative">
+          {/* Connector line */}
+          <div className="hidden md:block absolute top-12 left-1/3 right-1/3 h-px bg-gradient-to-r from-transparent via-indigo-500/40 to-transparent" />
 
-            <div className="space-y-4">
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span className="text-red-600 font-bold text-sm">!</span>
-                  </div>
-                  <div>
-                    <p className="font-mono text-sm text-red-800 mb-2">
-                      {demoErrors[activeDemo].error}
-                    </p>
-                    <p className="text-sm text-red-600">
-                      {demoErrors[activeDemo].explanation}
-                    </p>
-                  </div>
-                </div>
+          {steps.map((s, i) => (
+            <motion.div key={i} {...fadeUp(i * 0.12)} className="card p-8 text-center hover:border-indigo-500/30 transition-all duration-300 relative">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-indigo-600 rounded-full text-xs font-bold text-white">
+                {s.n}
               </div>
-
-              <div className="flex gap-2">
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
-                  <Copy className="w-4 h-4" />
-                  Copy Solution
-                </button>
-                <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2">
-                  <Download className="w-4 h-4" />
-                  Export
-                </button>
+              <div className="w-14 h-14 bg-gradient-to-br from-indigo-500/20 to-violet-500/20 border border-indigo-500/20 rounded-2xl flex items-center justify-center text-indigo-400 mb-5 mx-auto">
+                {s.icon}
               </div>
-            </div>
-          </motion.div>
+              <h3 className="text-lg font-semibold text-white mb-3">{s.title}</h3>
+              <p className="text-sm text-gray-500 leading-relaxed">{s.desc}</p>
+            </motion.div>
+          ))}
         </div>
-      </section>
+      </div>
+    </section>
 
-      {/* Features Grid */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Everything You Need to Debug Smarter
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Powerful features designed to make debugging faster, easier, and more educational
+    {/* CTA */}
+    <section className="section-pad">
+      <div className="container-max">
+        <motion.div {...fadeUp()}
+          className="relative overflow-hidden rounded-3xl p-12 text-center"
+          style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.15) 0%, rgba(139,92,246,0.15) 100%)', border: '1px solid rgba(99,102,241,0.25)' }}
+        >
+          <div className="absolute inset-0 bg-grid opacity-30" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-indigo-500/20 blur-3xl" />
+          <div className="relative">
+            <Terminal className="w-12 h-12 text-indigo-400 mx-auto mb-5" />
+            <h2 className="text-4xl font-bold text-white mb-4">Ready to Test Your Error?</h2>
+            <p className="text-gray-400 max-w-lg mx-auto mb-8">
+              Paste your error message and get an AI-powered explanation in seconds. No signup required.
             </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                whileHover={{ y: -5 }}
-                className="bg-gradient-to-br from-gray-50 to-white p-8 rounded-2xl border border-gray-100 hover:shadow-lg transition-all"
-              >
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center text-white mb-6">
-                  {feature.icon}
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                  {feature.title}
-                </h3>
-                <p className="text-gray-600 leading-relaxed">
-                  {feature.description}
-                </p>
-              </motion.div>
-            ))}
+            <Link to="/debug" className="btn-primary inline-flex items-center gap-2 text-base px-10 py-4">
+              <Zap className="w-5 h-5" />
+              Analyze My Error Now
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+            <p className="text-gray-600 text-sm mt-4">Free forever · No credit card needed</p>
           </div>
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              How It Works
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Three simple steps to go from confused to coding again
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                step: 1,
-                title: "Paste Your Error",
-                description: "Copy and paste your error message, stack trace, or compiler output into DebugSense AI.",
-                icon: <Copy className="w-6 h-6" />
-              },
-              {
-                step: 2,
-                title: "AI Analysis",
-                description: "Our advanced AI analyzes your error in seconds, understanding the context and root cause.",
-                icon: <Sparkles className="w-6 h-6" />
-              },
-              {
-                step: 3,
-                title: "Get Solution",
-                description: "Receive a clear explanation, step-by-step fix instructions, and corrected code examples.",
-                icon: <CheckCircle2 className="w-6 h-6" />
-              }
-            ].map((step, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, x: index % 2 === 0 ? -20 : 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.2 }}
-                className="relative"
-              >
-                <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-2xl font-bold mb-6 mx-auto">
-                    {step.step}
-                  </div>
-                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 mb-4 mx-auto">
-                    {step.icon}
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                    {step.title}
-                  </h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    {step.description}
-                  </p>
-                </div>
-                
-                {index < 2 && (
-                  <div className="hidden md:block absolute top-1/2 -right-4 transform -translate-y-1/2">
-                    <ChevronRight className="w-8 h-8 text-gray-300" />
-                  </div>
-                )}
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Trusted by Developers Worldwide
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Join thousands of developers who are debugging faster and learning more
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="bg-gradient-to-br from-gray-50 to-white p-8 rounded-2xl border border-gray-100"
-              >
-                <div className="flex gap-1 mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
-                  ))}
-                </div>
-                <p className="text-gray-700 mb-6 italic">
-                  "{testimonial.content}"
-                </p>
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold">
-                    {testimonial.name.charAt(0)}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900">{testimonial.name}</p>
-                    <p className="text-sm text-gray-600">{testimonial.role}</p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Frequently Asked Questions
-            </h2>
-            <p className="text-xl text-gray-600">
-              Everything you need to know about DebugSense AI
-            </p>
-          </motion.div>
-
-          <div className="space-y-4">
-            {faqs.map((faq, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="bg-white rounded-xl border border-gray-200 overflow-hidden"
-              >
-                <button className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition-colors">
-                  <span className="font-semibold text-gray-900">{faq.question}</span>
-                  <ChevronRight className="w-5 h-5 text-gray-400" />
-                </button>
-                <div className="px-6 pb-4">
-                  <p className="text-gray-600">{faq.answer}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Final CTA */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-600 to-purple-600">
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="text-4xl font-bold text-white mb-4">
-              Ready to Debug Smarter?
-            </h2>
-            <p className="text-xl text-blue-100 mb-8">
-              Join thousands of developers who are fixing errors faster and learning more with DebugSense AI
-            </p>
-            
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="px-8 py-4 bg-white text-blue-600 font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 mx-auto"
-            >
-              <Rocket className="w-5 h-5" />
-              Get Started Free
-              <ArrowRight className="w-5 h-5" />
-            </motion.button>
-            
-            <p className="text-blue-100 mt-4">
-              No credit card required. Free forever for personal use.
-            </p>
-          </motion.div>
-        </div>
-      </section>
-    </div>
-  );
-};
+        </motion.div>
+      </div>
+    </section>
+  </div>
+);
 
 export default HomePage;

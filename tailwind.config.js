@@ -4,7 +4,7 @@ export default {
         "./src/client/index.html",
         "./src/client/src/**/*.{js,ts,jsx,tsx}",
     ],
-    darkMode: 'class',
+    darkMode: ['class', '[class~="dark"]'],
     theme: {
         extend: {
             colors: {
