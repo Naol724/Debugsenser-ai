@@ -10,7 +10,7 @@ services:
       - key: GROQ_API_KEY
         sync: false
       - key: MONGODB_URI
-        sync: false
+        value: mongodb+srv://gonfanaol39_db_user:vCVuxV1dtJTHUhTt@cluster0.p9tp0za.mongodb.net/?appName=Cluster0
     healthCheckPath: /api/health
     autoDeploy: false
     plan: free

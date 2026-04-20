@@ -13,8 +13,15 @@ const __dirname = path.dirname(__filename);
 // Load environment variables from the root directory
 dotenv.config({ path: path.join(__dirname, '../../.env') });
 
-// Connect to MongoDB
-connectDB();
+// Connect to MongoDB (with fallback if it fails)
+let dbConnected = false;
+try {
+  connectDB();
+  dbConnected = true;
+} catch (error) {
+  console.error('Database connection failed, running without database...');
+  console.error('Some features may not work properly.');
+}
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -127,21 +134,30 @@ Please provide a structured explanation using Markdown. Your response must inclu
 
         const explanation = response.data.choices[0].message.content;
         
-        // Save to database
-        const errorExplanation = new ErrorExplanation({
-            errorText,
-            language,
-            explanation,
-            sessionId: currentSessionId,
-            isPublic: false
-        });
-        
-        await errorExplanation.save();
+        // Save to database (only if connected)
+        let savedExplanation = null;
+        if (dbConnected && process.env.MONGODB_URI) {
+          try {
+            const errorExplanation = new ErrorExplanation({
+              errorText,
+              language,
+              explanation,
+              sessionId: currentSessionId,
+              isPublic: false
+            });
+            
+            savedExplanation = await errorExplanation.save();
+            console.log('Saved to database successfully');
+          } catch (dbError) {
+            console.error('Failed to save to database:', dbError.message);
+            // Continue without saving to database
+          }
+        }
         
         // Cache the response
         responseCache.set(cacheKey, {
-            explanation,
-            timestamp: Date.now()
+          explanation,
+          timestamp: Date.now()
         });
         
         // Clean old cache entries periodically
@@ -156,9 +172,9 @@ Please provide a structured explanation using Markdown. Your response must inclu
         
         console.log('Successfully generated explanation');
         res.json({ 
-            explanation,
-            sessionId: currentSessionId,
-            id: errorExplanation._id
+          explanation,
+          sessionId: currentSessionId,
+          id: savedExplanation?._id || null
         });
 
     } catch (error) {
@@ -201,6 +217,18 @@ app.get('/api/history/:sessionId', async (req, res) => {
         const { sessionId } = req.params;
         const { limit = 20, page = 1 } = req.query;
         
+        if (!dbConnected || !process.env.MONGODB_URI) {
+            return res.json({
+                history: [],
+                pagination: {
+                    page: parseInt(page),
+                    limit: parseInt(limit),
+                    total: 0,
+                    pages: 0
+                }
+            });
+        }
+        
         const history = await ErrorExplanation.find({ sessionId })
             .sort({ createdAt: -1 })
             .limit(limit * 1)
@@ -220,7 +248,15 @@ app.get('/api/history/:sessionId', async (req, res) => {
         });
     } catch (error) {
         console.error('Error fetching history:', error);
-        res.status(500).json({ error: 'Failed to fetch history' });
+        res.json({
+            history: [],
+            pagination: {
+                page: 1,
+                limit: 20,
+                total: 0,
+                pages: 0
+            }
+        });
     }
 });
 
@@ -228,6 +264,11 @@ app.get('/api/history/:sessionId', async (req, res) => {
 app.delete('/api/history/:id', async (req, res) => {
     try {
         const { id } = req.params;
+        
+        if (!dbConnected || !process.env.MONGODB_URI) {
+            return res.status(503).json({ error: 'Database not available' });
+        }
+        
         const result = await ErrorExplanation.findByIdAndDelete(id);
         
         if (!result) {
