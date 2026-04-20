@@ -35,11 +35,9 @@ const Navbar = () => {
   }, [isDark]);
 
   const navigation = [
-    { name: 'Features', href: '#features', icon: <Sparkles className="w-4 h-4" /> },
-    { name: 'How It Works', href: '#how-it-works', icon: <Code2 className="w-4 h-4" /> },
+    { name: 'Features', href: '/features', icon: <Sparkles className="w-4 h-4" /> },
+    { name: 'How It Works', href: '/how-it-works', icon: <Code2 className="w-4 h-4" /> },
     { name: 'Docs', href: '/docs', icon: <BookOpen className="w-4 h-4" /> },
-    { name: 'Pricing', href: '/pricing', icon: <Star className="w-4 h-4" /> },
-    { name: 'Contact', href: '/contact', icon: <MessageSquare className="w-4 h-4" /> },
   ];
 
   return (

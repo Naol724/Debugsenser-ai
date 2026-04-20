@@ -6,10 +6,10 @@ import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import App from './App';
 
-// Import new pages (we'll create these next)
+// Import new functional pages
 import AboutPage from './pages/AboutPage';
-import ContactPage from './pages/ContactPage';
-import PricingPage from './pages/PricingPage';
+import FeaturesPage from './pages/FeaturesPage';
+import HowItWorksPage from './pages/HowItWorksPage';
 import DocsPage from './pages/DocsPage';
 import PrivacyPage from './pages/PrivacyPage';
 import TermsPage from './pages/TermsPage';
@@ -73,15 +73,15 @@ const AppRouter = () => {
             </PageWrapper>
           } />
           
-          <Route path="/contact" element={
+          <Route path="/features" element={
             <PageWrapper>
-              <ContactPage />
+              <FeaturesPage />
             </PageWrapper>
           } />
           
-          <Route path="/pricing" element={
+          <Route path="/how-it-works" element={
             <PageWrapper>
-              <PricingPage />
+              <HowItWorksPage />
             </PageWrapper>
           } />
           
