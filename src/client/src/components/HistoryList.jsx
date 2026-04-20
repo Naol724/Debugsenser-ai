@@ -1,6 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-function HistoryList({ history, onLoadHistory }) {
+function HistoryList({ history, onLoadHistory, onDeleteHistory, loadingHistory }) {
+    if (loadingHistory) {
+        return (
+            <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-6 border border-slate-100 flex flex-col items-center justify-center text-center h-48">
+                <div className="w-10 h-10 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mb-3"></div>
+                <h3 className="text-slate-500 font-medium">Loading history...</h3>
+            </div>
+        );
+    }
+    
     if (!history || history.length === 0) {
         return (
             <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-6 border border-slate-100 flex flex-col items-center justify-center text-center h-48">
@@ -25,21 +34,39 @@ function HistoryList({ history, onLoadHistory }) {
             <ul className="space-y-3">
                 {history.map(item => (
                     <li
-                        key={item.id}
-                        onClick={() => onLoadHistory(item)}
-                        className="p-4 rounded-xl border border-slate-100 hover:border-blue-300 hover:shadow-md hover:bg-blue-50/50 cursor-pointer transition-all group"
+                        key={item._id || item.id}
+                        className="p-4 rounded-xl border border-slate-100 hover:border-blue-300 hover:shadow-md hover:bg-blue-50/50 transition-all group"
                     >
                         <div className="flex justify-between items-start mb-2">
                             <span className="text-xs font-bold text-blue-700 bg-blue-100 px-2 py-1 rounded-md">
                                 {item.language}
                             </span>
-                            <span className="text-xs font-medium text-slate-400">
-                                {new Date(item.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                            </span>
+                            <div className="flex items-center gap-2">
+                                <span className="text-xs font-medium text-slate-400">
+                                    {new Date(item.createdAt || item.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onDeleteHistory(item._id || item.id);
+                                    }}
+                                    className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700 p-1"
+                                    title="Delete"
+                                >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
-                        <p className="text-sm text-slate-600 font-mono truncate group-hover:text-slate-900">
-                            {item.errorText}
-                        </p>
+                        <div 
+                            onClick={() => onLoadHistory(item)}
+                            className="cursor-pointer"
+                        >
+                            <p className="text-sm text-slate-600 font-mono truncate group-hover:text-slate-900">
+                                {item.errorText}
+                            </p>
+                        </div>
                     </li>
                 ))}
             </ul>

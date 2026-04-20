@@ -3,12 +3,18 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import connectDB from './config/database.js';
+import ErrorExplanation from './models/ErrorExplanation.js';
+import { v4 as uuidv4 } from 'uuid';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Load environment variables from the root directory
 dotenv.config({ path: path.join(__dirname, '../../.env') });
+
+// Connect to MongoDB
+connectDB();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -33,6 +39,7 @@ app.get('/api/health', (req, res) => {
         timestamp: new Date().toISOString(),
         environment: process.env.NODE_ENV || 'development',
         hasApiKey: !!process.env.GROQ_API_KEY,
+        hasDatabase: !!process.env.MONGODB_URI,
         cacheSize: responseCache.size,
         uptime: process.uptime(),
         memory: {
@@ -51,7 +58,7 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 // API Routes
 app.post('/api/explain', async (req, res) => {
     try {
-        const { errorText, language } = req.body;
+        const { errorText, language, sessionId } = req.body;
 
         if (!errorText) {
             return res.status(400).json({ error: 'Error text is required.' });
@@ -64,6 +71,9 @@ app.post('/api/explain', async (req, res) => {
                 details: 'GROQ_API_KEY is not configured. Please check .env file.' 
             });
         }
+
+        // Generate or use session ID
+        const currentSessionId = sessionId || uuidv4();
 
         // Create cache key
         const cacheKey = `${language}:${errorText.substring(0, 100)}`;
@@ -117,6 +127,17 @@ Please provide a structured explanation using Markdown. Your response must inclu
 
         const explanation = response.data.choices[0].message.content;
         
+        // Save to database
+        const errorExplanation = new ErrorExplanation({
+            errorText,
+            language,
+            explanation,
+            sessionId: currentSessionId,
+            isPublic: false
+        });
+        
+        await errorExplanation.save();
+        
         // Cache the response
         responseCache.set(cacheKey, {
             explanation,
@@ -134,7 +155,11 @@ Please provide a structured explanation using Markdown. Your response must inclu
         }
         
         console.log('Successfully generated explanation');
-        res.json({ explanation });
+        res.json({ 
+            explanation,
+            sessionId: currentSessionId,
+            id: errorExplanation._id
+        });
 
     } catch (error) {
         console.error('Error reaching Groq API:', error.response?.data || error.message);
@@ -167,6 +192,106 @@ Please provide a structured explanation using Markdown. Your response must inclu
             error: 'Failed to generate explanation. Please try again later.',
             details: error.response?.data?.error?.message || error.message
         });
+    }
+});
+
+// Get history for a session
+app.get('/api/history/:sessionId', async (req, res) => {
+    try {
+        const { sessionId } = req.params;
+        const { limit = 20, page = 1 } = req.query;
+        
+        const history = await ErrorExplanation.find({ sessionId })
+            .sort({ createdAt: -1 })
+            .limit(limit * 1)
+            .skip((page - 1) * limit)
+            .select('errorText language createdAt updatedAt');
+        
+        const total = await ErrorExplanation.countDocuments({ sessionId });
+        
+        res.json({
+            history,
+            pagination: {
+                page: parseInt(page),
+                limit: parseInt(limit),
+                total,
+                pages: Math.ceil(total / limit)
+            }
+        });
+    } catch (error) {
+        console.error('Error fetching history:', error);
+        res.status(500).json({ error: 'Failed to fetch history' });
+    }
+});
+
+// Delete a specific error explanation
+app.delete('/api/history/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await ErrorExplanation.findByIdAndDelete(id);
+        
+        if (!result) {
+            return res.status(404).json({ error: 'History item not found' });
+        }
+        
+        res.json({ message: 'History item deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting history item:', error);
+        res.status(500).json({ error: 'Failed to delete history item' });
+    }
+});
+
+// Get public error explanations (for community feature)
+app.get('/api/public-explanations', async (req, res) => {
+    try {
+        const { language, limit = 10, page = 1 } = req.query;
+        
+        const filter = { isPublic: true };
+        if (language && language !== 'All') {
+            filter.language = language;
+        }
+        
+        const explanations = await ErrorExplanation.find(filter)
+            .sort({ helpfulCount: -1, createdAt: -1 })
+            .limit(limit * 1)
+            .skip((page - 1) * limit)
+            .select('errorText language explanation helpfulCount createdAt');
+        
+        const total = await ErrorExplanation.countDocuments(filter);
+        
+        res.json({
+            explanations,
+            pagination: {
+                page: parseInt(page),
+                limit: parseInt(limit),
+                total,
+                pages: Math.ceil(total / limit)
+            }
+        });
+    } catch (error) {
+        console.error('Error fetching public explanations:', error);
+        res.status(500).json({ error: 'Failed to fetch public explanations' });
+    }
+});
+
+// Mark explanation as helpful
+app.post('/api/explanations/:id/helpful', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await ErrorExplanation.findByIdAndUpdate(
+            id,
+            { $inc: { helpfulCount: 1 } },
+            { new: true }
+        );
+        
+        if (!result) {
+            return res.status(404).json({ error: 'Explanation not found' });
+        }
+        
+        res.json({ helpfulCount: result.helpfulCount });
+    } catch (error) {
+        console.error('Error marking as helpful:', error);
+        res.status(500).json({ error: 'Failed to update helpful count' });
     }
 });
 
