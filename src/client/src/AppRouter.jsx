@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import PWAInstallButton from './components/PWAInstallButton';
 
 import HomePage from './pages/HomePage';
 import DebugPage from './pages/DebugPage';
@@ -41,6 +42,7 @@ const AppRouter = () => (
         </Routes>
       </main>
       <Footer />
+      <PWAInstallButton />
     </div>
   </Router>
 );

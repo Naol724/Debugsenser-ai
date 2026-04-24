@@ -7,20 +7,27 @@ const Footer = () => {
 
   const links = {
     Product: [
-      { name: 'Debug Test', href: '/debug' },
-      { name: 'Dashboard', href: '/dashboard' },
-      { name: 'About', href: '/about' },
+      { name: 'Debug Test',  href: '/debug'     },
+      { name: 'Dashboard',   href: '/dashboard' },
+      { name: 'About',       href: '/about'     },
     ],
     Legal: [
-      { name: 'Privacy Policy', href: '/privacy' },
-      { name: 'Terms of Service', href: '/terms' },
+      { name: 'Privacy Policy',    href: '/privacy' },
+      { name: 'Terms of Service',  href: '/terms'   },
     ],
   };
 
+  const socials = [
+    { label: 'GitHub',   href: 'https://github.com'   },
+    { label: 'Twitter',  href: 'https://twitter.com'  },
+    { label: 'LinkedIn', href: 'https://linkedin.com' },
+  ];
+
   return (
-    <footer className="bg-[#0a0d16] border-t border-white/5">
+    <footer className="bg-slate-100 dark:bg-[#0a0d16] border-t border-slate-200 dark:border-white/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-10">
+
           {/* Brand */}
           <div className="col-span-2">
             <Link to="/" className="flex items-center gap-3 mb-4 group w-fit">
@@ -29,33 +36,34 @@ const Footer = () => {
               </div>
               <span className="font-bold gradient-text">DebugSense AI</span>
             </Link>
-            <p className="text-sm text-gray-600 max-w-xs leading-relaxed">
+            <p className="text-sm text-body max-w-xs leading-relaxed">
               AI-powered error analysis for developers and students. Understand any error instantly.
             </p>
             <div className="flex gap-3 mt-5">
-              {[
-                { icon: <ExternalLink className="w-4 h-4" />, href: 'https://github.com', label: 'GitHub' },
-                { icon: <ExternalLink className="w-4 h-4" />, href: 'https://twitter.com', label: 'Twitter' },
-                { icon: <ExternalLink className="w-4 h-4" />, href: 'https://linkedin.com', label: 'LinkedIn' },
-              ].map((s) => (
+              {socials.map((s) => (
                 <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
                   aria-label={s.label}
-                  className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-gray-600 hover:text-gray-300 transition-all"
+                  className="w-8 h-8 rounded-lg
+                             bg-slate-200 hover:bg-slate-300 dark:bg-white/5 dark:hover:bg-white/10
+                             border border-slate-300 dark:border-white/10
+                             flex items-center justify-center
+                             text-muted hover:text-heading
+                             transition-all"
                 >
-                  {s.icon}
+                  <ExternalLink className="w-3.5 h-3.5" />
                 </a>
               ))}
             </div>
           </div>
 
-          {/* Links */}
+          {/* Link columns */}
           {Object.entries(links).map(([group, items]) => (
             <div key={group}>
-              <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">{group}</h4>
+              <h4 className="text-xs font-semibold text-muted uppercase tracking-wider mb-4">{group}</h4>
               <ul className="space-y-2.5">
                 {items.map((item) => (
                   <li key={item.name}>
-                    <Link to={item.href} className="text-sm text-gray-600 hover:text-gray-300 transition-colors">
+                    <Link to={item.href} className="text-sm text-body hover:text-heading transition-colors">
                       {item.name}
                     </Link>
                   </li>
@@ -65,9 +73,9 @@ const Footer = () => {
           ))}
         </div>
 
-        <div className="pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-xs text-gray-700">© {year} DebugSense AI. All rights reserved.</p>
-          <p className="text-xs text-gray-700 flex items-center gap-1.5">
+        <div className="pt-6 border-t border-slate-200 dark:border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-xs text-subtle">© {year} DebugSense AI. All rights reserved.</p>
+          <p className="text-xs text-subtle flex items-center gap-1.5">
             Made with <Heart className="w-3 h-3 text-red-500 fill-current" /> for developers worldwide
           </p>
         </div>
