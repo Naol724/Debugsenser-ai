@@ -1,0 +1,20 @@
+name: Keep Backend Warm
+
+on:
+  schedule:
+    # Run every 10 minutes
+    - cron: '*/10 * * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  keep-warm:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Ping Backend Service
+        run: |
+          # Ping your backend to keep it warm
+          curl -f https://your-app.onrender.com/api/health || echo "Service not responding"
+          
+          # Also ping the main endpoint
+          curl -f https://your-app.onrender.com/ || echo "Main endpoint not responding"

@@ -8,6 +8,7 @@
         "client": "vite --config src/client/vite.config.js",
         "server": "nodemon src/server/server.js",
         "build": "vite build --config src/client/vite.config.js -d dist",
+        "preview": "vite preview --port 4173 --host --base ./",
         "start": "node src/server/server.js"
     },
     "dependencies": {
@@ -35,6 +36,7 @@
         "nodemon": "^3.0.1",
         "postcss": "^8.4.31",
         "tailwindcss": "^3.3.5",
-        "vite": "^5.0.0"
+        "vite": "^5.0.0",
+        "vite-plugin-pwa": "^1.2.0"
     }
 }
